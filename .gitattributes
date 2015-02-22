@@ -1,0 +1,2 @@
+*.asm eol=crlf
+*.txt eol=crlf
