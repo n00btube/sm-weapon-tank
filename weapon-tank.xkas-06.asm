@@ -102,7 +102,6 @@ org $93803c
 	JSR damage_hijack
 
 ; routine for boosting the damage calculation
-; TODO: check that $14 and 2 bytes of stack are usable right now
 org $93f620
 damage_hijack:
 	PHX           ; save register
