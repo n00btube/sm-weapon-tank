@@ -9,7 +9,7 @@ lorom
 ; the item pickup.  This address (F070) is just "somewhere in free space."
 ; Be careful adding code, not to overwrite the PLM data at F0A0...
 ; this code is 21 ($15) bytes, leaving 21 ($15) more.
-org $84f070
+org $84F070
 	; PLM arguments:
 	; Value (2 bytes), unused since the math is too hard for me yet
 	; Message box (1 byte)
@@ -33,7 +33,7 @@ tank_collect:
 
 ; --------------------------------------------------------------
 ; Item definition, referenced by the files in the PLMs directory.
-org $84f0a0
+org $84F0A0
 	; item header: EE64 for a pickup
 	DW $EE64,item_data
 
@@ -70,7 +70,7 @@ end_plm:
 ; missile pickup (item drop) optimization
 ; as in, I didn't want it overwriting weapon tanks w/ reserve missiles,
 ; so I rewrote it entirely.  I made it smaller, so no free space used.
-org $91df80
+org $91DF80
 	PHP        ; save flags
 	PHB        ; save data bank
 	PHK        ; set data bank to code bank ($91)
@@ -98,11 +98,11 @@ missiles_done:
 ; damage calculation hijack point
 ; this is the obvious point: the LDA instruction that gets the base damage value.
 ; which is why this conflicts with pretty much "any other damage-modifying patch"
-org $93803c
+org $93803C
 	JSR damage_hijack
 
 ; routine for boosting the damage calculation
-org $93f620
+org $93F620
 damage_hijack:
 	PHX           ; save register
 
