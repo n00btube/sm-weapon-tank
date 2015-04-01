@@ -97,36 +97,63 @@ missiles_done:
 ; --------------------------------------------------------------
 ; damage calculation hijack point
 ; this is the obvious point: the LDA instruction that gets the base damage value.
-; which is why this conflicts with pretty much "any other damage-modifying patch"
+; which is why this conflicts with other damage-modifying patches
 org $93803C
 	JSR damage_hijack
 
 ; routine for boosting the damage calculation
+; movable anywhere in bank $93 free space.  65 ($41) bytes in size.
 org $93F620
 damage_hijack:
-	PHX           ; save register
-
 	LDA $09D8     ; load number of weapon tanks
 	AND #$000F    ; limit to (hopefully sane) maximum value: 15 tanks
-	TAX           ; set up for damage loop
+	BNE do_tanks  ; skip calculations if no tanks
+	LDA $0000,y   ; original damage value
+	RTS
 
-	LDA $0000,y   ; overwritten during hijack: load damage from pointer
-	LSR           ; added damage per weapon tank = base/2
-	STA $14       ; store added damage
+do_tanks:
+	PHX
+	PHY
 
-	LDA $0000,y   ; reload base damage
-	CLC           ; prep for add loop
-damage_add:
-	CPX #$0000    ; if we're out of weapon tanks (or had none)
-	BEQ damage_ready ; we are done adding up damage
+	; (32 + (n_tanks * per_tank_32nds)) * base_damage / 32 = effective_damage
+	; BTW: 32 was chosen to give a good combo of precision and upper limit.
+	; Both should be effectively insane, I hope.
+	TAX           ; n_tanks
+	LDA #$0020    ; 32 (1x Samus' original base damage) plus...
+	CLC
+nk_multiply:
+	; ##################################################################
+	;                              NEW IN v2
+	;        This is where you change the effectiveness of tanks.
+	;        Change this $0010 (16) to any other number of 32nds.
+	;
+	ADC #$0010    ; per_tank value in 32nds
+	; ##################################################################
+	DEX           ; used tank
+	BNE nk_multiply ; loop until all tanks used
 
-	DEX           ; count the tank we just used
-	ADC $14       ; add the half-damage value from tmp space
-	BPL damage_add
+	TAX           ; temporary storage
+	LDA $0000,y   ; load base damage from pointer
+	TXY           ; to parameter for multiplication
+	JSL $8082D6   ; multiply A*Y -> 32-bits starting at $05F1
+	LDX #$0005    ; number of shifts (5 == divide by 2^5 == 32)
+div_shift:
+	ROR $05F3     ; rotate a bit from hi to lo damage
+	ROR $05F1
+	DEX           ; bit shifted
+	BNE div_shift ; loop until all bits shifted
+
+	; first overflow check is just added safety, so that $12000 causes a crash,
+	; even though $2000 is acceptable value for lo damage.
+	LDA $05F3     ; load hi damage
+	AND #$07FF    ; clear fractional bits that were rotated in
+	BNE damage_overflow ; not zero: too much damage
+
+	LDA $05F1     ; load lo damage
+	BMI damage_overflow ; redundant check -> obvious crash point
+	PLY
+	PLX
+	RTS
+
 damage_overflow:
 	JMP damage_overflow ; freeze here so failure is obvious in the debugger
-
-damage_ready:
-	PLX           ; restore register
-	RTS
-;F641
