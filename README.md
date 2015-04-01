@@ -25,7 +25,7 @@ Also, anything that uses the reserve missiles RAM at $7E:09D8.
 I’m _not_ sure about patches that affect SRAM save/load, since they may have chosen to skip the reserve missiles byte.
 Always test!
 
-Uses some free space in bank $84 (item/PLMs) and bank $90 (beam firing).
+Uses some free space in bank $84 (item/PLMs) and bank $93 (beam firing).
 Also uses message $1D.
 
 # Technical details
