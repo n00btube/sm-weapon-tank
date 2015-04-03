@@ -8,18 +8,19 @@ lorom
 ; This first routine is the code behind our new PLM instruction to handle
 ; the item pickup.  This address (F070) is just "somewhere in free space."
 ; Be careful adding code, not to overwrite the PLM data at F0A0...
-; this code is 21 ($15) bytes, leaving 21 ($15) more.
+; this code is 34 ($22) bytes, leaving 14 ($0E) more.
 org $84F070
 	; PLM arguments:
 	; Value (2 bytes), unused since the math is too hard for me yet
 	; Message box (1 byte)
-	; However, neither of the above show up in SMILE because it doesn't know
-	; anything about this new PLM.
 
 tank_collect:
 	LDA $09D8   ; load current number of tanks
 	INC         ; add hardcoded "one tank"
 	STA $09D8   ; save tank number
+
+	LDA #$0168  ; frame delay for music/messagebox
+	JSL $82E118 ; do music
 
 	LDA $0002,Y ; grab message box arg
 	AND #$00FF  ; convert to byte
