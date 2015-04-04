@@ -103,19 +103,30 @@ org $93803C
 	JSR damage_hijack
 
 ; routine for boosting the damage calculation
-; movable anywhere in bank $93 free space.  65 ($41) bytes in size.
+; movable anywhere in bank $93 free space.  79 ($4F) bytes in size.
 org $93F620
 damage_hijack:
 	LDA $09D8     ; load number of weapon tanks
 	AND #$000F    ; limit to (hopefully sane) maximum value: 15 tanks
 	BNE do_tanks  ; skip calculations if no tanks
+
+no_boost:
 	LDA $0000,y   ; original damage value
 	RTS
 
 do_tanks:
+; #################### OPTIONAL: AVOID BOOSTING BEAMS ####################
+; Delete this section if you want beams to be boosted. (saves 14/$E bytes)
+; Default is to only boost missiles/supers.
+	LDA $0C18,X      ; get projectile type
+	BIT #$0F00       ; check for beam type
+	BEQ no_boost     ; beam: disable boost
+	LDA $09D8        ; reload our number of tanks ofter the beam check
+	AND #$000F
+; ######################### END OPTIONAL SECTION #########################
+
 	PHX
 	PHY
-
 	; (32 + (n_tanks * per_tank_32nds)) * base_damage / 32 = effective_damage
 	; BTW: 32 was chosen to give a good combo of precision and upper limit.
 	; Both should be effectively insane, I hope.
@@ -123,19 +134,20 @@ do_tanks:
 	LDA #$0020    ; 32 (1x Samus' original base damage) plus...
 	CLC
 nk_multiply:
-	; ##################################################################
-	;                              NEW IN v2
-	;        This is where you change the effectiveness of tanks.
-	;        Change this $0010 (16) to any other number of 32nds.
-	;
+; ########################## DAMAGE BOOST VALUE ##########################
+	; The following ADC value is the damage per tank, in 32nds ($20ths).
+	; Examples:
+	; $0010: half of base damage per tank. 1x, 1.5x, 2x, 2.5x, ...
+	; $0015: two-thirds, approx. 1x, 1.66x, 2.33x, 2.99x, ...
+	; $0040: double. 1x, 3x, 5x, 7x, ...
+	; But be careful not to overflow 7FFF (32767) damage total.
 	ADC #$0010    ; per_tank value in 32nds
-	; ##################################################################
 	DEX           ; used tank
 	BNE nk_multiply ; loop until all tanks used
 
-	TAX           ; temporary storage
+	TAX           ; temporary storage of damage multiplier
 	LDA $0000,y   ; load base damage from pointer
-	TXY           ; to parameter for multiplication
+	TXY           ; damage multiplier to parameter for multiplication
 	JSL $8082D6   ; multiply A*Y -> 32-bits starting at $05F1
 	LDX #$0005    ; number of shifts (5 == divide by 2^5 == 32)
 div_shift:
