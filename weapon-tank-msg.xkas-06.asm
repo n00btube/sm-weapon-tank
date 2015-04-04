@@ -2,7 +2,7 @@
 ;K: This hasn't been extensively bugtested yet, but at the moment I don't know of any bugs from it.
 ;J: I've tested it. Looks like, you can use big and small messages with or without highlighted buttons.
 
-;header	
+;header
 ;K: Uncomment this if you're using a headered ROM
 ;J: Hint: commented lines are starting from ";" and they aren't executed.
 
@@ -105,16 +105,16 @@ WeaponTank:
 ;	DW $000E, $000E, $000E
 
 
-;J: Strict order like "small messages first" isn't nessary. 
+;J: Strict order like "small messages first" isn't nessary.
 
 ;==========================================================================
 
-;J: There is a relocated button array for big messages with text "press certain button". 
-;J: Meaning of this array is if you change default control settings and shot will use Y button instead of X, then in the default text (press the X button) letter X will be rewritten with Y. 
+;J: There is a relocated button array for big messages with text "press certain button".
+;J: Meaning of this array is if you change default control settings and shot will use Y button instead of X, then in the default text (press the X button) letter X will be rewritten with Y.
 ;J: Actually, there are a different button written by default in each message, but this doesn't matter.
 
-;J: Each word is a position of correct letter. 
-;J: When adding a new message, don't forget to add a word to this array. 
+;J: Each word is a position of correct letter.
+;J: When adding a new message, don't forget to add a word to this array.
 
 ;J: In short messages such as "Energy Tank" the value must be 0000.
 
