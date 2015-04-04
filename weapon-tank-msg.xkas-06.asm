@@ -127,8 +127,8 @@ WeaponTank:
 
 ButtonArray:
 	DW $0000, $012A, $012A, $012C, $012C, $012C, $0000, $0000, $0000, $0000, $0000, $0000, $0120, $0000, $0000	;Messages 01-0F
-	DW $0000, $0000, $012A, $0000, $0000, $0000, $0000, $0000, $0000, $0000, $012A, $0120, $0000, $012A, $0000	;Messages 10-1C
-	DW $0000	;Message 1D
+	DW $0000, $0000, $012A, $012A, $0000, $0000, $0000, $0000, $0000, $0000, $012A, $0120, $0000, $0000, $0000	;Messages 10-1E
+	DW $0000	;Message 1F
 
 
 ;K: The rest is code to make the game use the free space above for new message boxes. No touching.
