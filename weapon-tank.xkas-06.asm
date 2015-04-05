@@ -39,7 +39,7 @@ org $84F0A0
 	DW $EE64,item_data
 
 item_data:
-	DW $8764,$9000 ; custom graphics: reserve tank (I can't draw gfx yet, sorry)
+	DW $8764,$9400 ; custom graphics: reserve tank
 		DB 0,0,0,0,0,0,0,0  ; graphics palettes
 	DW $887C,end_plm ; if item has been picked up, delete PLM
 	DW $8A2E,$DFAF ; chozo ball stuff (x2)
